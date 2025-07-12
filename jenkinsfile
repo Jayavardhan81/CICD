@@ -1,0 +1,29 @@
+pipeline {
+  agent any
+
+  stages {
+    stage('Clone Repo') {
+      steps {
+        git 'https://github.com/Jayavardhan81/CICD.git'
+      }
+    }
+    
+    stage('Build Docker Image') {
+      steps {
+        script {
+          docker.build("jenkins-demo:${env.BUILD_NUMBER}")
+        }
+      }
+    }
+
+    stage('Push Docker Image') {
+      steps {
+        script {
+          docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
+            docker.image("jenkins-demo:${env.BUILD_NUMBER}").push()
+          }
+        }
+      }
+    }
+  }
+}
